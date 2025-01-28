@@ -1,31 +1,55 @@
+# Usar a imagem oficial do PHP na versão 8.2 com o servidor FastCGI Process Manager (FPM)
 FROM php:8.2-fpm
 
-# Instalar dependências necessárias
+# Atualizar os pacotes e instalar dependências necessárias
+# RUN apt-get update && apt-get install -y \ 
+#     curl \             Ferramenta para transferências de dados
+#     build-essential \  Pacotes para compilar extensões ou código
+#     locales \          Suporte a localizações
+#     git \              Ferramenta de controle de versão
+#     zip \              Ferramenta para compactação
+#     unzip \            Ferramenta para descompactação
+#     libpq-dev \        Biblioteca para PostgreSQL (opcional para PDO caso necessário)
+#     libonig-dev        Biblioteca para suporte a expressões regulares no PHP
+
 RUN apt-get update && apt-get install -y \
     curl \
+    build-essential \
+    locales \
     git \
     zip \
     unzip \
     libpq-dev \
     libonig-dev
 
-# Instalar extensões PHP
+# Instalar extensões PHP necessárias
 RUN docker-php-ext-install pdo pdo_mysql mbstring
+# `pdo` e `pdo_mysql`: Para conexão ao banco de dados MySQL.
+# `mbstring`: Suporte a strings multibyte, usado em várias funções do Laravel.
 
-# Instalar Composer
+# Instalar o Composer (gerenciador de dependências PHP) diretamente da imagem oficial
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Configurar o diretório de trabalho
+# Definir o diretório de trabalho no contêiner
 WORKDIR /var/www/html
 
-# Copiar os arquivos do projeto
+# Copiar todos os arquivos do projeto para o contêiner
 COPY . .
+
+# Copiar o arquivo de configuração `.env` para o contêiner
+COPY .env .env
 
 # Instalar dependências do Laravel
 RUN composer install
+# Executa o `composer install` para baixar as dependências definidas no arquivo `composer.json`.
 
-# Configurar permissões
+# Configurar permissões para o diretório do projeto
+
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+# RUN chown -R www-data:www-data /var/www/html \  Define o usuário/dono como www-data (usado pelo servidor web)
+# && chmod -R 755 /var/www/html/storage           Define permissões de leitura e escrita para o diretório `storage`
+
+# Definir o comando padrão para iniciar o servidor PHP-FPM
+CMD ["php-fpm"]

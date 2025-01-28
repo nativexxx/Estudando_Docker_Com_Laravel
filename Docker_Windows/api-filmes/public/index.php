@@ -1,5 +1,9 @@
 <?php
 
+if (!file_exists(__DIR__.'/../.env')) {
+    die('Arquivo .env não encontrado!');
+}
+
 use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));

@@ -1,50 +1,64 @@
-version: '3.8'
+version: '3.8' # Especifica a versão do formato do arquivo Docker Compose. A versão 3.8 é compatível com as versões mais recentes do Docker.
 
-services:
-  laravel-app:
-    command: ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=8080"]
-    image: api-filmes-laravel-app
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: laravel-app
-    ports:
-      - "8080:8000"
-    volumes:
-      - .:/var/www/html
-    depends_on:
-      - laravel-mysql
-    networks:
-      - laravel-network
-    environment:
-      APP_ENV: local
-      APP_DEBUG: 'true'
-      APP_KEY: base64:YOUR_APP_KEY
-      DB_CONNECTION: mysql
-      DB_HOST: laravel-mysql
-      DB_PORT: 3306
-      DB_DATABASE: laravel
-      DB_USERNAME: yuri
-      DB_PASSWORD: yuri1520
+services: # Define os serviços que compõem a aplicação. Cada serviço será executado em um contêiner separado.
 
-  laravel-mysql:
-    image: mysql:8.0
-    container_name: laravel-mysql
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: yuri
-      MYSQL_PASSWORD: yuri1520
-    volumes:
-      - mysql-data:/var/lib/mysql
-    networks:
-      - laravel-network
+  laravel-app: # Serviço principal para a aplicação Laravel.
+    image: api-filmes-laravel-app # Nome da imagem Docker para este serviço. Se não existir, será construída usando o Dockerfile.
+    build: # Especifica como construir a imagem do serviço.
+      context: . # Diretório atual onde está localizado o Dockerfile.
+      dockerfile: Dockerfile # Nome do Dockerfile usado para construir a imagem.
+    container_name: laravel-app # Nome do contêiner que será executado para este serviço.
+    volumes: # Define os volumes que serão montados no contêiner.
+      - .:/var/www/html # Monta o diretório atual no diretório /var/www/html no contêiner.
+      - ./nginx-config:/etc/nginx/conf.d # Monta a configuração do Nginx no contêiner.
+      - ./nginx-config:/var/www/html/nginx-config # Adiciona o mesmo diretório de configuração no Laravel.
+      - .env:/var/www/html/.env # Monta o arquivo `.env` no contêiner para configurar variáveis de ambiente.
+    depends_on: # Define que este serviço depende de outros serviços para iniciar.
+      - laravel-mysql # O serviço `laravel-mysql` deve estar ativo antes deste serviço iniciar.
+    networks: # Define a rede onde o serviço será conectado.
+      - laravel-network # Conecta o serviço à rede chamada `laravel-network`.
+    environment: # Define variáveis de ambiente para o serviço Laravel.
+      APP_ENV: local # Define o ambiente da aplicação como local.
+      APP_DEBUG: 'true' # Habilita o modo de depuração no Laravel.
+      APP_KEY: base64:YOUR_APP_KEY # Define a chave de segurança da aplicação.
+      DB_CONNECTION: mysql # Define que o banco de dados usado será MySQL.
+      DB_HOST: laravel-mysql # Nome do host do banco de dados, correspondente ao nome do serviço MySQL.
+      DB_PORT: 3306 # Porta usada para se conectar ao MySQL.
+      DB_DATABASE: laravel # Nome do banco de dados usado pelo Laravel.
+      DB_USERNAME: yuri # Nome de usuário para autenticação no banco de dados.
+      DB_PASSWORD: yuri1520 # Senha para autenticação no banco de dados.
 
-volumes:
-  mysql-data:
+  nginx: # Serviço para configurar e gerenciar o servidor web Nginx.
+    image: nginx:latest # Usa a última imagem oficial do Nginx.
+    container_name: nginx # Nome do contêiner para o Nginx.
+    ports: # Mapeia as portas entre o contêiner e o host.
+      - "8080:80" # Porta 8080 no host será mapeada para a porta 80 no contêiner.
+    volumes: # Monta os volumes necessários para o Nginx.
+      - ./nginx-config:/etc/nginx/conf.d # Monta o diretório de configuração do Nginx no contêiner.
+      - .:/var/www/html # Monta o diretório atual no contêiner.
+    depends_on: # Define que o Nginx depende do serviço Laravel estar ativo.
+      - laravel-app # O Nginx será iniciado somente após o serviço Laravel estar funcionando.
+    networks: # Conecta o Nginx à mesma rede dos outros serviços.
+      - laravel-network # Rede compartilhada entre todos os serviços.
 
-networks:
-  laravel-network:
-    driver: bridge
+  laravel-mysql: # Serviço para o banco de dados MySQL.
+    image: mysql:8.0 # Usa a imagem oficial do MySQL na versão 8.0.
+    container_name: laravel-mysql # Nome do contêiner para o MySQL.
+    ports: # Mapeia as portas entre o contêiner e o host.
+      - "3306:3306" # Porta 3306 no host será mapeada para a porta 3306 no contêiner.
+    environment: # Define variáveis de ambiente para configurar o MySQL.
+      MYSQL_ROOT_PASSWORD: root # Senha do usuário root do MySQL.
+      MYSQL_DATABASE: laravel # Nome do banco de dados que será criado.
+      MYSQL_USER: yuri # Nome do usuário MySQL para acesso ao banco.
+      MYSQL_PASSWORD: yuri1520 # Senha para o usuário `yuri`.
+    volumes: # Monta volumes para persistir os dados do banco.
+      - mysql-data:/var/lib/mysql # Diretório onde os dados do MySQL serão armazenados no contêiner.
+    networks: # Conecta o MySQL à mesma rede dos outros serviços.
+      - laravel-network # Rede compartilhada entre todos os serviços.
+
+volumes: # Define volumes persistentes usados pelos serviços.
+  mysql-data: # Volume usado para armazenar os dados do banco de dados MySQL.
+
+networks: # Define as redes usadas pelos serviços.
+  laravel-network: # Rede chamada `laravel-network`.
+    driver: bridge # Tipo de rede usado para comunicação entre os contêineres.
