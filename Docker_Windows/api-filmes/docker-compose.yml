@@ -20,11 +20,10 @@ services: # Define os serviços que compõem a aplicação. Cada serviço será 
     environment: # Define variáveis de ambiente para o serviço Laravel.
       APP_ENV: local # Define o ambiente da aplicação como local.
       APP_DEBUG: 'true' # Habilita o modo de depuração no Laravel.
-      APP_KEY: base64:YOUR_APP_KEY # Define a chave de segurança da aplicação.
       DB_CONNECTION: mysql # Define que o banco de dados usado será MySQL.
       DB_HOST: laravel-mysql # Nome do host do banco de dados, correspondente ao nome do serviço MySQL.
       DB_PORT: 3306 # Porta usada para se conectar ao MySQL.
-      DB_DATABASE: laravel # Nome do banco de dados usado pelo Laravel.
+      DB_DATABASE: curso_api_filmes # Nome do banco de dados usado pelo Laravel.
       DB_USERNAME: yuri # Nome de usuário para autenticação no banco de dados.
       DB_PASSWORD: yuri1520 # Senha para autenticação no banco de dados.
 
@@ -48,7 +47,7 @@ services: # Define os serviços que compõem a aplicação. Cada serviço será 
       - "3306:3306" # Porta 3306 no host será mapeada para a porta 3306 no contêiner.
     environment: # Define variáveis de ambiente para configurar o MySQL.
       MYSQL_ROOT_PASSWORD: root # Senha do usuário root do MySQL.
-      MYSQL_DATABASE: laravel # Nome do banco de dados que será criado.
+      MYSQL_DATABASE: curso_api_filmes # Nome do banco de dados que será criado.
       MYSQL_USER: yuri # Nome do usuário MySQL para acesso ao banco.
       MYSQL_PASSWORD: yuri1520 # Senha para o usuário `yuri`.
     volumes: # Monta volumes para persistir os dados do banco.

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('generos', function (Blueprint $table) {
+        Schema::create('generos', function (Blueprint $table) {
             $table->increments('id')->unsigned();
 
             $table->string('titulo')->unique();

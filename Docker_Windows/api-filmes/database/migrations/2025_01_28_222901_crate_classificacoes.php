@@ -11,8 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('classificacoes', function (Blueprint $table) {
-            //
+        Schema::create('classificacoes', function (Blueprint $table) {
+            $table->increments('id')->unsigned();
+
+            $table->string('titulo');
+            $table->string('descricao');
+
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
