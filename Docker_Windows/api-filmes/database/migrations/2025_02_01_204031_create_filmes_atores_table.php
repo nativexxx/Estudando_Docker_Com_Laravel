@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('classificacoes', function (Blueprint $table) {
+        Schema::create('filmes_atores', function (Blueprint $table) {
             $table->increments('id')->unsigned();
 
-            $table->string('titulo');
-            $table->text('descricao');
+            $table->integer('filme_id')->unsigned();
+            $table->foreign('filme_id')->references('id')->on('filmes');
+
+            $table->integer('ator_id')->unsigned();
+            $table->foreign('ator_id')->references('id')->on('atores');
 
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -27,8 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('classificacoes', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('filmes_atores');
     }
 };

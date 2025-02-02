@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('classificacoes', function (Blueprint $table) {
+        Schema::create('diretores', function (Blueprint $table) {
             $table->increments('id')->unsigned();
 
-            $table->string('titulo');
-            $table->text('descricao');
+            $table->string('nome');
 
             $table->timestamps();
             $table->softDeletes();
@@ -27,8 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('classificacoes', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('diretores');
     }
 };
